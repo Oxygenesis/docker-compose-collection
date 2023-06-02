@@ -1,0 +1,40 @@
+version: "3.9"
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    restart: on-failure
+    
+  # use the following command to get the ip and connect to redis container locally after all containers are up
+  # docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' redis-redis-1
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    ports:
+      - "127.0.0.1:8001:8001"
+    volumes:
+      - ./.data/redisinsight:/db
+    restart: on-failure
+    depends_on:
+      - graph
+      - search
+      - timeseries
+      - redis
+
+  graph:
+    image: redislabs/redisgraph
+    ports:
+      - "6380:6379"
+    restart: on-failure
+
+  search:
+    image: redislabs/redisearch:latest
+    ports:
+      - "6381:6379"
+    restart: on-failure
+
+  timeseries:
+    image: redislabs/redistimeseries
+    ports:
+      - "6382:6379"
+    restart: on-failure
